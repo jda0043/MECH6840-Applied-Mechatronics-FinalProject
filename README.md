@@ -1,5 +1,6 @@
 **Project Software for MECH 6840 - Applied Mechatronics Team -2.
 **
+
 Architecture - ESP32 WROOM
 
 
@@ -18,6 +19,7 @@ Architecture - ESP32 WROOM
 12. AccelStepper ............ Stepper Library used to control stepper motor drivers
 
 **Pinout**
+
 ESP32 GPIO 12 - A4988 DIRECTION
 ESP32 GPIO 14 - A4988 STEP
 ESP32 GPIO 27 - A4988 DIRECTION
