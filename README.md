@@ -33,3 +33,4 @@ Architecture - ESP32 WROOM
 - Matek 6-30V step-down regulator set to 9V
 - Matek 6-30V step-down regulator set to 5V
 - 2x Nema 17 biploar 1.8 degree 1.5A Stepper Motors (42x42x38mm)
+- R-Line 4S 650mah LIPO battery
