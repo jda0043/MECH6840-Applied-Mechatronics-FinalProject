@@ -18,13 +18,18 @@ Architecture - ESP32 WROOM
 12. AccelStepper ............ Stepper Library used to control stepper motor drivers
 
 **Pinout**
-
 - ESP32 GPIO 12 - A4988 DIRECTION
 - ESP32 GPIO 14 - A4988 STEP
 - ESP32 GPIO 27 - A4988 DIRECTION
 - ESP32 GPIO 26 - A4988 STEP
-
 - ESP32 GPIO SCL - MPU SCL
 - ESP32 GPIO SDA - MPU SDA
 
 
+**Part List**
+- ESP32 WROOM
+- 2x A4988 Stepper Motor Drivers
+- MPU9250 3-axis IMU
+- Matek 6-30V step-down regulator set to 9V
+- Matek 6-30V step-down regulator set to 5V
+- 2x Nema 17 biploar 1.8 degree 1.5A Stepper Motors (42x42x38mm)
