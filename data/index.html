@@ -1,0 +1,83 @@
+
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>MECH 6840 : Team -2 : Title</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="icon" type="image/png" href="drone.png">
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
+        <link rel="stylesheet" type="text/css" href="style.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/107/three.min.js"></script>
+      </head>
+<body>
+    <div class="topnav">
+        <h1>Balancing Wheeled Robot</h1>
+
+    </div>
+
+    <div class="content">
+        <div class="block">
+        <div class="card">
+            <p class="card-title">Controls</p>
+            
+            <div class="buttons" id="controls">
+                <button id="FWD" value="disarm" onmousedown="FWD(this)" onmouseup="stop(this)">FWD</button>
+            </div>
+            <div class="buttons">
+                <button id="LB" value="disarm" onmousedown="LB(this)" onmouseup="stop(this)">L</button>
+                <button id="RB" value="disarm" onmousedown="RB(this)" onmouseup="stop(this)">R</button>
+            </div>
+            <div class="buttons" id="controls">
+                <button id="BWD" value="disarm" onmousedown="BWD(this)" onmouseup="stop(this)">BWD</button>
+            </div>
+
+            
+        </div>
+
+        
+
+        <div class="card">
+            <p class="card-title">PWM Values</p>
+            <div class="modes">
+                <p class="switch">
+                    <input type="range" onchange="updateSliderPWM(this)" id="slider1" min="0" max="10" step="0.01" value ="1" class="slider">
+                    <p class="state">Kp: <span id="sliderValue1">1</span></p>
+                </p>
+                <p class="switch">
+                    <input type="range" onchange="updateSliderPWM(this)" id="slider2" min="0" max="10" step="0.01" value ="0" class="slider">
+                    <p class="state">Head: <span id="sliderValue2">0</span></p>
+                </p>
+                <p class="switch">
+                    <input type="range" onchange="updateSliderPWM(this)" id="slider3" min="0" max="10" step="0.01" value ="0" class="slider">
+                    <p class="state">Lift: <span id="sliderValue3">0</span></p>
+                </p>
+            </div>
+        </div>
+        
+            <div class="modal" id="modal">
+            <div class="card">
+                <div class="sens-card">
+                    <p class="card-title">Sensors</p>
+                    <p><span class="reading">Heading: <span id="heading"></span>&deg;</span></p>
+                    <p><span class="reading">Pitch: <span id="pitch"></span>&deg;</span></p>
+                    <p><span class="reading">Roll: <span id="roll"></span>&deg;</span></p>
+                    <p><span class="reading">X - Acceleration: <span id="accelX"></span></span></p>
+                    <p><span class="reading">Y - Acceleration: <span id="accelY"></span></span></p>
+                    <p><span class="reading">Z - Acceleration: <span id="accelZ"></span></span></p>
+                </div>
+            </div>
+            <button id="sens" value="0" onmousedown="closeSensors()">Close</button>
+        </div>
+
+        <button id="sens" value="0" onmousedown="showSensors()">Show Sensors</button>
+        
+       
+        
+
+    </div>
+
+
+
+    <script src="script.js"></script>
+</body>
+</html>
