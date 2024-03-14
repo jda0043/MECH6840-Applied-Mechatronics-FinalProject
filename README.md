@@ -1,5 +1,4 @@
-**Project Software for MECH 6840 - Applied Mechatronics Team -2.
-**
+**Project Software for MECH 6840 - Applied Mechatronics Team -2.**
 
 Architecture - ESP32 WROOM
 
