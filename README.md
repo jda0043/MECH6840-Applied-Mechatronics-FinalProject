@@ -2,6 +2,14 @@
 
 Architecture - ESP32 WROOM
 
+**Included Files**
+- MECH6840_FinalProject.ino : Main Firmware file uploaded to ESP32.
+- vars.h : File for storing all parameters used in firmware file.
+- data
+  - index.html : HTML file for interface
+  - script.js  : Javascript file for interface. Used to send commands to controller.
+  - style.css  : CSS styling. Used to group elements on interface
+- joycon_controller.py : Python file used to enable a switch joycon for controlling robot setpoints.
 
 **Required Libraries**
 1. WiFi ..................................... Arduino WiFi Library
