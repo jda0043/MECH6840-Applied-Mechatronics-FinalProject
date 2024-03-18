@@ -6,11 +6,11 @@
 #include <ESPAsyncWebServer.h>
 #include "LittleFS.h"
 #include <Arduino_JSON.h>
-#include <WiFiUdp.h>
+
 #include <ArduinoOTA.h>
 #include <AsyncElegantOTA.h>
 
-#include <SPI.h>
+
 #include <Wire.h>
 
 #include "MPU9250.h"
@@ -41,9 +41,26 @@ String getSliderValues(){
   sliderValues["sliderValue1"] = String(Kp);
   sliderValues["sliderValue2"] = String(Ki);
   sliderValues["sliderValue3"] = String(Kd);
+  sliderValues["sliderValue4"] = String(pitch_setpoint_offset);
+  sliderValues["sliderValue5"] = String(Kp_heading);
+  sliderValues["sliderValue6"] = String(Ki_heading);
+  sliderValues["sliderValue7"] = String(Kd_heading);
+  sliderValues["sliderValue8"] = String(heading_setpoint_offset);
+  sliderValues["sliderValue9"] = String(DEADBAND);
+  sliderValues["sliderValue10"] = String(MAIN_LOOP_TIME);
+  sliderValues["sliderValue11"] = String(MAIN_LOOP_TIME_HEADING);
+  sliderValues["sliderValue12"] = String(SENSE_LOOP_TIME);
   sliderValues["heading"] = String(heading);
-  sliderValues["pitch"] = String(rightMotor_speed);
+  sliderValues["pitch"] = String(pitch);
   sliderValues["roll"] = String(roll);
+  sliderValues["gx"] = String(gyroX);
+  sliderValues["gy"] = String(gyroY);
+  sliderValues["gz"] = String(gyroZ);
+  sliderValues["ax"] = String(accelX);
+  sliderValues["ay"] = String(setpoint);
+  sliderValues["az"] = String(heading_setpoint);
+  sliderValues["LMSpeed"] = String(leftMotor_speed);
+  sliderValues["RMSpeed"] = String(rightMotor_speed);
   String jsonString = JSON.stringify(sliderValues);
   return jsonString;
   
@@ -72,61 +89,145 @@ void handleWebSocketMessage(void *arg, uint8_t *data, size_t len) {
     Serial.println(message);
     if (message.indexOf("1s") >= 0) {
       Kp = message.substring(2);
-      //dutyCycle1 = map(speedVal.toInt(), 0, 100, minPWM, maxPWM);
-      //dutyCycle4 = dutyCycle1;
       notifyClients(getSliderValues());
     }
     if (message.indexOf("2s") >= 0) {
       Ki = message.substring(2);
-      //headVal = message.substring(2);
-      //headSetpoint = map(headVal.toInt(), 0, 100, 0, 180);
       notifyClients(getSliderValues());
     }    
     if (message.indexOf("3s") >= 0) {
-      Ki = message.substring(2);
-      //liftVal = message.substring(2);
-      //liftSetpoint = map(liftVal.toInt(), 0, 100, 0, 255);
+      Kd = message.substring(2);
       notifyClients(getSliderValues());
     }
-    if (strcmp((char*)data, "SENSORS") == 0) {
-      if (sensor_state == false) {
-        sensor_state = true;
-      }
-      else {
-        sensor_state = false;
-      }
+    if (message.indexOf("4s") >= 0) {
+      pitch_setpoint_offset = message.substring(2).toFloat();
+      notifyClients(getSliderValues());
+      setpoint = pitch_setpoint_offset;
     }
-    if (strcmp((char*)data, "FWD") == 0) {
-      //stepper.setSpeed(-200);  
-      //stepper_2.setSpeed(200);  
-      //setpoint += 4;
-      heading_setpoint += 20;
+    if (message.indexOf("5s") >= 0) {
+      Kp_heading = message.substring(2);
+      notifyClients(getSliderValues());
     }
-    if (strcmp((char*)data, "BWD") == 0) {
-      //stepper.setSpeed(200);  
-      //stepper_2.setSpeed(-200); 
-      setpoint -= 6; 
+    if (message.indexOf("6s") >= 0) {
+      Ki_heading = message.substring(2);
+      notifyClients(getSliderValues());
     }
-    if (strcmp((char*)data, "stop") == 0) {
-      //stepper.setSpeed(0);
-      //stepper_2.setSpeed(0);  
-      setpoint = 0;  
+    if (message.indexOf("7s") >= 0) {
+      Kd_heading = message.substring(2);
+      notifyClients(getSliderValues());
     }
-    if (strcmp((char*)data, "LB") == 0) {
-      controlLoop_bool = false;
-      stepper.setSpeed(0);
-      stepper_2.setSpeed(0);
-      //setpoint = heading;   
+    if (message.indexOf("8s") >= 0) {
+      heading_setpoint_offset = message.substring(2).toFloat();
+      notifyClients(getSliderValues());
+      heading_setpoint = heading_setpoint_offset;
     }
-    if (strcmp((char*)data, "RB") == 0) {
-      controlLoop_bool = true;
+    if (message.indexOf("9s") >= 0) {
+      DEADBAND = message.substring(2).toFloat();
+      notifyClients(getSliderValues());
     }
-    if (strcmp((char*)data, "DashBoard") == 0) {
+    if (message.indexOf("0s") >= 0) {
+      MAIN_LOOP_TIME = message.substring(2).toFloat();
+      notifyClients(getSliderValues());
+    }
+    if (message.indexOf("!s") >= 0) {
+      MAIN_LOOP_TIME_HEADING = message.substring(2).toFloat();
+      notifyClients(getSliderValues());
+    }
+    if (message.indexOf("#s") >= 0) {
+      SENSE_LOOP_TIME = message.substring(2).toFloat();
+      notifyClients(getSliderValues());
+    }
 
+    if (message.indexOf("SP") >= 0) {
+      int ind1 = message.indexOf(",");
+      setpoint = message.substring(2,ind1).toFloat();
+      int ind2 = message.indexOf(",", ind1+1);
+      float heading_setpoint_temp = message.substring(ind1+1, ind2).toFloat();
+
+      setpoint = map(setpoint,-50, 50, -12, 12) + pitch_setpoint_offset;
+      //heading_setpoint = map(heading_setpoint_temp,-50, 50, -180, 180) + heading_setpoint_offset;
+      heading_setpoint += heading_setpoint_temp;
+      if (heading_setpoint > 179) {
+        heading_setpoint = 179;
+      }
+      if (heading_setpoint < -179) {
+        heading_setpoint = -179;
+      }
+      
     }
+    
+    
+    if (strcmp((char*)data, "ENCON") == 0) {
+      controlLoop_bool = true;
+      previous_control_time = millis();
+      previous_control_time_heading = millis();
+    }
+    if (strcmp((char*)data, "DISCON") == 0) {
+      controlLoop_bool = false;
+      stepper.setSpeed(0); 
+      stepper_2.setSpeed(0); 
+    }
+    
+    if (strcmp((char*)data, "ENMOT") == 0) {
+      digitalWrite(MOT_1_ENABLE, LOW);
+      digitalWrite(MOT_2_ENABLE, LOW); 
+    }
+    if (strcmp((char*)data, "DISMOT") == 0) {
+      digitalWrite(MOT_1_ENABLE, HIGH);
+      digitalWrite(MOT_2_ENABLE, HIGH); 
+    }
+    if (strcmp((char*)data, "WS") == 0) {
+       digitalWrite(MS1_1, LOW); 
+       digitalWrite(MS2_1, LOW);  
+       digitalWrite(MS3_1, LOW); 
+       digitalWrite(MS1_2, LOW);  
+       digitalWrite(MS2_2, LOW);
+       digitalWrite(MS3_2, LOW);
+    }
+    if (strcmp((char*)data, "HS") == 0) {
+       //digitalWrite(MS1_1, HIGH); 
+       //digitalWrite(MS2_1, LOW);  
+       //digitalWrite(MS3_1, LOW); 
+       //digitalWrite(MS1_2, HIGH);  
+       //digitalWrite(MS2_2, LOW);
+       //digitalWrite(MS3_2, LOW);
+    }
+    if (strcmp((char*)data, "QS") == 0) {
+       digitalWrite(MS1_1, LOW); 
+       digitalWrite(MS2_1, HIGH);  
+       digitalWrite(MS3_1, LOW); 
+       digitalWrite(MS1_2, LOW);  
+       digitalWrite(MS2_2, HIGH);
+       digitalWrite(MS3_2, LOW);
+    }
+    if (strcmp((char*)data, "ES") == 0) {
+       //digitalWrite(MS1_1, HIGH); 
+       //digitalWrite(MS2_1, HIGH);  
+       //digitalWrite(MS3_1, LOW); 
+       //digitalWrite(MS1_2, HIGH);  
+       //digitalWrite(MS2_2, HIGH);
+       //digitalWrite(MS3_2, LOW);
+    }
+    if (strcmp((char*)data, "SS") == 0) {
+       //digitalWrite(MS1_1, HIGH); 
+       //digitalWrite(MS2_1, HIGH);  
+       //digitalWrite(MS3_1, HIGH); 
+       //digitalWrite(MS1_2, HIGH);  
+       //digitalWrite(MS2_2, HIGH);
+       //digitalWrite(MS3_2, HIGH);
+    }
+    
+    if (strcmp((char*)data, "CIMU") == 0) {
+      //IMU.calibrateGyro();
+      //delay(100);
+      //IMU.calibrateAccel();
+      //delay(100);
+    }
+    
     if (strcmp((char*)data, "getValues") == 0) {
       notifyClients(getSliderValues());
     }
+    
   }
 }
 
@@ -157,6 +258,25 @@ void initWebSocket() {
 
 void setup() {
    Serial.begin(115200);
+   pinMode(MS1_1, OUTPUT);
+   pinMode(MS2_1, OUTPUT);
+   pinMode(MS3_1, OUTPUT);
+   pinMode(MS1_2, OUTPUT);
+   pinMode(MS2_2, OUTPUT);
+   pinMode(MS3_2, OUTPUT);
+   pinMode(MOT_1_ENABLE, OUTPUT);
+   pinMode(MOT_2_ENABLE, OUTPUT);
+
+   digitalWrite(MOT_1_ENABLE, HIGH);
+   digitalWrite(MOT_2_ENABLE, HIGH);
+
+   digitalWrite(MS1_1, HIGH); 
+   digitalWrite(MS2_1, HIGH);  
+   digitalWrite(MS3_1, HIGH); 
+   digitalWrite(MS1_2, HIGH);  
+   digitalWrite(MS2_2, HIGH);
+   digitalWrite(MS3_2, HIGH);   
+     
    
    // start communication with IMU
    status = IMU.begin();
@@ -165,20 +285,22 @@ void setup() {
    //IMU.calibrateMag();
    //delay(100);
    IMU.calibrateAccel();
+   delay(100);
    // start the IMU and filter
                      // Set DMP FIFO rate to 10 Hz
 
    fusion.setup( IMU.getAccelX_mss(), IMU.getAccelY_mss(), IMU.getAccelZ_mss() ); 
+   //fusion.setup();     
    float angle = 0 * DEG_TO_RAD;                // angle in radians to rotate heading about z-axis
    fusion.rotateHeading( angle, LARGE_ANGLE ); 
 
    initFS();
 
-   //WiFi.softAP(ssid, password);
-   WiFi.begin(ssid, password);
+   WiFi.softAP(ssid, password);
+   //WiFi.begin(ssid, password);
    initWebSocket();
-   IPAddress IP = WiFi.localIP();
-   Serial.println(IP);
+   //IPAddress IP = WiFi.localIP();
+   //Serial.println(IP);
 
    ArduinoOTA
     .onStart([]() {
@@ -220,28 +342,37 @@ void setup() {
 
   stepper.setMaxSpeed(motor_MAXspeed);
   stepper_2.setMaxSpeed(motor_MAXspeed);
+  stepper.setAcceleration(motor_MAXacceleration);
+  stepper.setAcceleration(motor_MAXacceleration);
   stepper.setSpeed(0); 
   stepper_2.setSpeed(0); 
   
 }
 
 void loop() {
-  uint32_t currentMillis = millis();
+  fusiontimestep = millis() - previous_fusiontimestep;
+  if (fusiontimestep >= SENSE_LOOP_TIME) {
+  //uint32_t currentMillis = millis();
   IMU.readSensor();
-  accelX = IMU.getAccelX_mss();
-  accelY = IMU.getAccelY_mss();
-  accelZ = IMU.getAccelZ_mss();
-  gyroX = IMU.getGyroX_rads();
-  gyroY = IMU.getGyroY_rads();
-  gyroZ = IMU.getGyroZ_rads();
-  fusion.update( IMU.getGyroX_rads(), IMU.getGyroY_rads(), IMU.getGyroZ_rads(), IMU.getAccelX_mss(), IMU.getAccelY_mss(), IMU.getAccelZ_mss() ); 
+  //accelX = IMU.getAccelX_mss();
+  //accelY = IMU.getAccelY_mss();
+  //accelZ = IMU.getAccelZ_mss();
+  //gyroX = IMU.getGyroX_rads();
+  //gyroY = IMU.getGyroY_rads();
+  //gyroZ = IMU.getGyroZ_rads();
+  fusion.update( IMU.getGyroX_rads(), IMU.getGyroY_rads(), IMU.getGyroZ_rads(), IMU.getAccelX_mss(), IMU.getAccelY_mss(), IMU.getAccelZ_mss(), GAIN, SD_ACCEL );
+  //fusion.update( IMU.getGyroX_rads(), IMU.getGyroY_rads(), IMU.getGyroZ_rads() );
   heading = fusion.yaw() * (180/PI);
   pitch = fusion.pitch() * (180/PI);
   roll = fusion.roll() * (180/PI);
 
-  if (controlLoop_bool == true) {
+  if (controlLoop_bool == true && abs(roll) < 30 && abs(heading_setpoint-roll) >= DEADBAND) {
    control_loop(roll);
    control_loop_heading(heading); 
+  }
+  else {
+    stepper.setSpeed(0);
+    stepper_2.setSpeed(0);
   }
 
   if (sensor_state == true && (millis() - previous_time) > reading_delay ) {
@@ -251,8 +382,13 @@ void loop() {
 
  stepper.runSpeed();
  stepper_2.runSpeed();
-  
-  
+
+ //stepper.run();
+ //stepper_2.run();
+ previous_fusiontimestep = fusiontimestep;
+  }
+
+
   ArduinoOTA.handle();
   ws.cleanupClients();
 
@@ -263,23 +399,19 @@ void loop() {
 void control_loop(float actual_heading) {
   unsigned long current_time = millis();
   unsigned long delta_time = current_time - previous_control_time; 
+  //fusiontimestep = delta_time;
   if (delta_time >= MAIN_LOOP_TIME) {
     error = setpoint - actual_heading;
     total_error += error;
     delta_error = error - previous_error;
     
-    float kp_term = error * Kp.toFloat() * 10;
-    float kd_term = (delta_error / MAIN_LOOP_TIME) * Kd.toFloat() * 0.001;
-    float ki_term = (total_error * MAIN_LOOP_TIME) * Ki.toFloat();
+    long kp_term = error * Kp.toFloat() * 160;
+    long kd_term = (delta_error / MAIN_LOOP_TIME) * Kd.toFloat() *16;
+    long ki_term = (total_error * MAIN_LOOP_TIME) * Ki.toFloat();
   
     leftMotor_speed = kp_term + kd_term + ki_term;
     rightMotor_speed = kp_term + kd_term + ki_term;
-    if (leftMotor_speed > 750) {
-      leftMotor_speed = 750;
-    }
-    if (leftMotor_speed < -750) {
-      leftMotor_speed = -750;
-    }
+
   
   
     previous_error = error;
@@ -288,6 +420,8 @@ void control_loop(float actual_heading) {
   
     stepper.setSpeed(-leftMotor_speed);
     stepper_2.setSpeed(leftMotor_speed);
+    //stepper.moveTo(16);
+    //stepper_2.moveTo(16);
   }
 }
 
@@ -302,18 +436,13 @@ void control_loop_heading(float actual_heading) {
     total_error_heading += error_heading;
     delta_error_heading = error_heading - previous_error_heading;
     
-    float kp_term = error_heading * Kp_heading.toFloat();
-    float kd_term = (delta_error_heading / MAIN_LOOP_TIME_HEADING) * Kd_heading.toFloat();
-    float ki_term = (total_error_heading * MAIN_LOOP_TIME_HEADING) * Ki_heading.toFloat();
+    long kp_term = error_heading * Kp_heading.toFloat() * 160;
+    long kd_term = (delta_error_heading / MAIN_LOOP_TIME_HEADING) * Kd_heading.toFloat()*16;
+    long ki_term = (total_error_heading * MAIN_LOOP_TIME_HEADING) * Ki_heading.toFloat();
   
     leftMotor_speed += kp_term + kd_term + ki_term;
     rightMotor_speed -= kp_term + kd_term + ki_term;
-    if (leftMotor_speed > 750) {
-      leftMotor_speed = 750;
-    }
-    if (leftMotor_speed < -750) {
-      leftMotor_speed = -750;
-    }
+ 
   
   
     previous_error_heading = error_heading;
@@ -321,5 +450,7 @@ void control_loop_heading(float actual_heading) {
   
     stepper.setSpeed(-rightMotor_speed);
     stepper_2.setSpeed(leftMotor_speed);
+    //stepper.moveTo(16);
+    //stepper_2.moveTo(16);
   }
 }
