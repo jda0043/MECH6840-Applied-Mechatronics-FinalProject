@@ -5,7 +5,7 @@ Architecture - ESP32 WROOM
 **Included Files**
 - MECH6840_FinalProject.ino : Main Firmware file uploaded to ESP32.
 - vars.h : File for storing all parameters used in firmware file.
-- data
+- data folder : All files in this folder make up the interface. Uploaded via LittleFS to flash memory of ESP32
   - index.html : HTML file for interface
   - script.js  : Javascript file for interface. Used to send commands to controller.
   - style.css  : CSS styling. Used to group elements on interface
