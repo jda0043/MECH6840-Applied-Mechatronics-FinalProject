@@ -24,6 +24,14 @@ Architecture - ESP32 WROOM
 - ESP32 GPIO 26 - A4988 STEP
 - ESP32 GPIO SCL - MPU SCL
 - ESP32 GPIO SDA - MPU SDA
+- ESP32 GPIO 25 - MS1_1
+- ESP32 GPIO 33 - MS2_1
+- ESP32 GPIO 32 - MS3_1
+- ESP32 GPIO 35 - MS1_2
+- ESP32 GPIO 34 - MS2_2
+- ESP32 GPIO 39 - MS3_2
+- ESP32 GPIO 0 - ENABLE 1
+- ESP32 GPIO 2 - ENABLE 2
 
 
 **Part List**
@@ -32,5 +40,9 @@ Architecture - ESP32 WROOM
 - MPU9250 3-axis IMU
 - Matek 6-30V step-down regulator set to 9V
 - Matek 6-30V step-down regulator set to 5V
+
 - 2x Nema 17 biploar 1.8 degree 1.5A Stepper Motors (42x42x38mm)
 - R-Line 4S 650mah LIPO battery
+
+  **Interface**
+  <img width="1272" alt="Screen Shot 2024-03-18 at 12 42 12 PM" src="https://github.com/jda0043/MECH6840-Applied-Mechatronics-FinalProject/assets/90729752/f512fa65-deb8-4922-b2ea-5690339a3683">
