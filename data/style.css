@@ -21,20 +21,18 @@ html {
     font-size: 1.25rem;
   }
   .content {
-    width: 95%;
+    width: 98%;
     padding: 5px;
     
   }
   .block {
     float: left;
     background-color: white;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    padding-right: 5px;
+
     width: 100%;
     margin: 5px;
     display: grid; grid-gap: 1.rem;
-    grid-template-columns: repeat(2, minmax(300px, 80%));
+    grid-template-columns: repeat(1, minmax(100%, 100%));
   }
   .card {
     float: left;
@@ -47,7 +45,8 @@ html {
     margin: 5px;
     
   }
-  
+
+ 
   .card-title {
     color:#0a0808;
     font-weight: bold;

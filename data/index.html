@@ -4,24 +4,14 @@
     <head>
         <title>MECH 6840 : Team -2 : Title</title>
         <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=yes">
-        <link rel="icon" type="image/png" href="drone.png">
-        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.2/css/all.css" integrity="sha384-fnmOCqbTlWIlj8LyTjo7mOUStjsKC4pOpQbqyi7RrhN7udi9RwhKkMHpvLbHG9Sr" crossorigin="anonymous">
         <link rel="stylesheet" type="text/css" href="style.css">
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/107/three.min.js"></script>
+        <script src="chart.min.js"></script>
       </head>
 <body>
-
+    <canvas id="myChart" width="400" height="200"></canvas>
     <div class="content">
         <div class="block">
-        <div class="card">
-
-            <canvas id="canvas" ></canvas>
-            <p style="text-align: center;">
-                X: <span id="x_coordinate"> </span>
-                Y: <span id="y_coordinate"> </span>
-            </p>
-            
-        </div>
+        
 
         
 
@@ -32,71 +22,86 @@
                     <p><span class="reading">Heading: <span id="heading"></span>&deg;</span></p>
                     <p><span class="reading">Pitch: <span id="pitch"></span>&deg;</span></p>
                     <p><span class="reading">Roll: <span id="roll"></span>&deg;</span></p>
-                    <p><span class="reading">gX: <span id="gX"></span></span></p>
-                    <p><span class="reading">gY: <span id="gX"></span></span></p>
-                    <p><span class="reading">gZ: <span id="gX"></span></span></p>
-                    <p><span class="reading">aX: <span id="accelX"></span></span></p>
-                    <p><span class="reading">aY: <span id="accelY"></span></span></p>
-                    <p><span class="reading">aZ: <span id="accelZ"></span></span></p>
+                    <p><span class="reading">Gyro Z: <span id="gZ"></span>&deg;</span></p>
+                    <p><span class="reading">Linear Acceleration - X: <span id="aX"></span></span></p>
                     <p><span class="reading">Left Motor Speed: <span id="LMSpeed"></span></span></p>
                     <p><span class="reading">Right Motor Speed: <span id="RMSpeed"></span></span></p>
+                    <p><span class="reading">Pitch Setpoint: <span id="psp"></span></span></p>
+                    <p><span class="reading">Speed Setpoint: <span id="ssp"></span></span></p>
                     
                 </div>
                 <div class="card-content">
                     <p id="ratesTitle">Pitch Rates</p>
                     <p class="switch">
-                        <p class="state">Kp: <span id="sliderValue1">1</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider1" min="0" max="20" step="0.01" value ="1" class="slider"></p>
+                        <p class="state">Kp: <span id="sliderValue1">6.5</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider1" min="0" max="20" step="0.1" value ="6.5" class="slider"></p>
                     </p>
                     <p class="switch">
-                        <p class="state">Ki: <span id="sliderValue2">0</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider2" min="0" max="100" step="0.01" value ="0" class="slider"></p>
+                        <p class="state">Ki: <span id="sliderValue2">0.01</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider2" min="0" max="0.3" step="0.001" value ="0.01" class="slider"></p>
                     </p>
                     <p class="switch">
-                        <p class="state">Kd: <span id="sliderValue3">0</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider3" min="0" max="1000" step="0.01" value ="0" class="slider"></p>
+                        <p class="state">Kd: <span id="sliderValue3">12</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider3" min="0" max="100" step="0.01" value ="12" class="slider"></p>
                     </p>
-                    <p class="switch">
-                        <p class="state">Pitch Offset: <span id="sliderValue4">0</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider4" min="-10" max="10" step=".5" value ="0" class="slider"></p>
-                    </p>
+                   
+
                     <p id="ratesTitle">Heading Rates</p>
                     <p class="switch">
-                        <p class="state">Kp: <span id="sliderValue5">1</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider5" min="0" max="20" step="0.01" value ="1" class="slider"></p>
+                        <p class="state">Kp: <span id="sliderValue4">0.25</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider4" min="0" max="20" step="0.01" value ="0.25" class="slider"></p>
                     </p>
                     <p class="switch">
-                        <p class="state">Ki: <span id="sliderValue6">0</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider6" min="0" max="100" step="0.01" value ="0" class="slider"></p>
+                        <p class="state">Kd: <span id="sliderValue5">0.01</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider5" min="0" max="1000" step="0.01" value ="0.01" class="slider"></p>
+                    </p>
+
+                    <p id="ratesTitle">Speed Rates</p>
+                    <p class="switch">
+                        <p class="state">Kp: <span id="sliderValue6">0.003</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider6" min="0" max="20" step="0.001" value ="0.003" class="slider"></p>
                     </p>
                     <p class="switch">
-                        <p class="state">Kd: <span id="sliderValue7">0</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider7" min="0" max="1000" step="0.01" value ="0" class="slider"></p>
+                        <p class="state">Ki: <span id="sliderValue7">0.0</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider7" min="0" max="0.1" step="0.0001" value ="0.0" class="slider"></p>
                     </p>
                     <p class="switch">
-                        <p class="state">Heading Offset: <span id="sliderValue8">0</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider8" min="-10" max="10" step=".5" value ="0" class="slider"></p>
+                        <p class="state">Kd: <span id="sliderValue8">0.1</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider8" min="0" max="100" step="0.1" value ="0.1" class="slider"></p>
+                    </p>
+
+
+                    <p class="switch">
+                        <p class="state">Pitch Deadband: <span id="sliderValue9">0.03</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider9" min="0" max="1" step=".01" value ="0.03" class="slider"></p>
                     </p>
                     <p class="switch">
-                        <p class="state">Deadband: <span id="sliderValue9">0.01</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider9" min="0" max="1.25" step=".01" value ="0.01" class="slider"></p>
+                        <p class="state">Speed Deadband: <span id="sliderValue0">0.0</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider0" min="0" max="1" step=".01" value ="0.0" class="slider"></p>
                     </p>
-                    <p id="ratesTitle">Frequency Rates</p>
+
+                    <p id="ratesTitle">Frequencies</p>
                     <p class="switch">
-                        <p class="state">Pitch Loop Rate: <span id="sliderValue0">10</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider0" min="0" max="20" step="1" value ="10" class="slider"></p>
-                    </p>
-                    <p class="switch">
-                        <p class="state">Heading Loop Rate: <span id="sliderValue!">20</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider!" min="0" max="40" step="1" value ="20" class="slider"></p>
+                        <p class="state">Pitch Loop Rate: <span id="sliderValue!">10</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider!" min="0" max="20" step="1" value ="10" class="slider"></p>
                     </p>
                     <p class="switch">
-                        <p class="state">Sensor Update Rate: <span id="sliderValue#">2</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider#" min="0" max="20" step="1" value ="2" class="slider"></p>
+                        <p class="state">Heading Loop Rate: <span id="sliderValue@">25</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider@" min="0" max="40" step="1" value ="25" class="slider"></p>
+                    </p>
+                    <p class="switch">
+                        <p class="state">Speed Loop Rate: <span id="sliderValue#">10</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider#" min="0" max="200" step="5" value ="10" class="slider"></p>
+                    </p>
+                    <p class="switch">
+                        <p class="state">Sensor Update Rate: <span id="sliderValue$">1000</span>&nbsp;&nbsp;<input type="range" onchange="updateSliderPWM(this)" id="slider$" min="100" max="2000" step="100" value ="1000" class="slider"></p>
                     </p>
                     
                     
                 </div>
                 
             </div>
+            <div class = "card2">
+            <button id="connectToBot" value="disarm" onmousedown="connectWS(this)" >Connect to Bot</button>
             <button id="enableController" value="disarm" onmousedown="enCont(this)" >Enable Controller</button>
             <button id="disableController" value="disarm" onmousedown="disCont(this)" >Disable Controller</button>
             <button id="enableMotors" value="disarm" onmousedown="enMot(this)" >Enable Motors</button>
             <button id="disableMotors" value="disarm" onmousedown="disMot(this)" >Disable Motors</button>
-            <button id="WS" value="disarm" onmousedown="WS(this)" >Full Step</button>
-            <button id="HS" value="disarm" onmousedown="HS(this)" >Half Step</button>
-            <button id="QS" value="disarm" onmousedown="QS(this)" >Quarter Step</button>
-            <button id="ES" value="disarm" onmousedown="ES(this)" >Eighth Step</button>
-            <button id="SS" value="disarm" onmousedown="SS(this)" >Sixteenth Step</button>
-            <button id="calibIMU" value="disarm" onmousedown="calibIMU(this)" >Calibrate IMU</button>
+            </div>
+            <div class = "card3">
+                <button id="underDamp" value="disarm" onmousedown="underDamp(this)" >Underdamped</button>
+                <button id="critDamp" value="disarm" onmousedown="critDamp(this)" >It's alright</button>
+                <button id="overDamp" value="disarm" onmousedown="overDamp(this)" >Overdamped</button>
+
+                </div>
+
         </div>
 
         
