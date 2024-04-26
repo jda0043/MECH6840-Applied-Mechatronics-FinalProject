@@ -1,35 +1,56 @@
 
 
 
-#define Mot1S  4  
-#define motorInterfaceType 1
+
+#define BNO08X_RESET -1
+
+// Two options
+//    -SH2_ARVR_STABILIZED_RV : Max Freq = 250Hz - More Accurate
+//    -SH2_GYRO_INTEGRATED_RV : Max Freq = 1000Hz - Less accurate
+sh2_SensorId_t reportType = SH2_ARVR_STABILIZED_RV; 
+long reportIntervalUs = 4000; // 250Hz 
+
+struct euler_t {
+  float yaw;
+  float pitch;
+  float roll;
+} ypr;
 
 
-#define GAIN          0.5     /* Fusion gain, value between 0 and 1 - Determines orientation correction with respect to gravity vector. 
-                                 If set to 1 the gyroscope is dissabled. If set to 0 the accelerometer is dissabled (equivant to gyro-only) */
-#define SD_ACCEL      0.2  
+
+
+float heading = 0.0;
+float pitch = 0.0;
+float roll = 0.0;
+float gyroZ = 0.0;
+float accelerationX = 0.0;
+
+
+
+uint8_t microStep = 16;
+uint8_t motorCurrent = 150;
+float maxStepSpeed = 1500;
+
+float avgMotSpeed;
+float avgMotSpeedSum;
+float absSpeed;
+
+
+int enMot = 0;
+int enCon = 0;
+
 
 const int DIR = 12;
 const int STEP = 14;
 const int DIR_2 = 27;
 const int STEP_2 = 26;
 
-const int MS1_1 = 25;
-const int MS2_1 = 33;
-const int MS3_1 = 32;
-const int MS1_2 = 35;
-const int MS2_2 = 34;
-const int MS3_2 = 39;
+const int MS1_1 = 33;
+const int MS2_1 = 32;
+const int MS3_1 = 13;
 
 const int MOT_1_ENABLE = 0;
 const int MOT_2_ENABLE = 2;
-
-const int stepsPerRevolution = 200;
-
-int stepCount = 0;         
-
-unsigned long fusiontimestep = 0;
-unsigned long previous_fusiontimestep = 0;
 
 
 //const char* ssid = "PiNet";
@@ -41,60 +62,74 @@ const char* password = "password";
 String serverMessage = "";
 String serverMessage_temp = "";
 String message = "";
-String Kp = "3.6";
-String Ki = "0";
-String Kd = "0";
-String Kp_heading = "1";
-String Ki_heading = "0";
-String Kd_heading = "0";
-unsigned long MAIN_LOOP_TIME = 10; // (ms) : 5ms=200hz 10ms=100hz 20ms=50hz
-unsigned long MAIN_LOOP_TIME_HEADING = 20; // (ms) : 5ms=200hz 10ms=100hz 20ms=50hz
-unsigned long SENSE_LOOP_TIME = 2; // (ms) 
-int dutyCycle1 = 0;
+
+
+String Kp = "6.5";
+String Ki = "0.01";
+String Kd = "12";
+String Kp_heading = "0.25";
+String Kd_heading = "0.01";
+String Kp_s = "0.003";
+String Ki_s = "0.0";
+String Kd_s = "0.1";
+
+
 
 int controlLoop_bool = false;
+bool sensor_state = true;
 
-float accelX = 0.0;
-float accelY = 0.0;
-float accelZ = 0.0;
-float gyroX = 0.0;
-float gyroY = 0.0;
-float gyroZ = 0.0;
-float heading = 0.0; 
-float pitch = 0;
-float roll = 0;
+// Send Sensor Data Variables
+unsigned long previous_time = 0; 
+unsigned long reading_delay  = 500;
 
-float setpoint = 0;
-float heading_setpoint = 0;
-
-float pitch_setpoint_offset = 0;
-float heading_setpoint_offset = 0;
 
 long leftMotor_speed = 0;
 long rightMotor_speed = 0;
-long motor_MAXspeed = 20000;
-long motor_MAXacceleration = 10000;
 
-float DEADBAND = 0.1;
 
-// Pitch Controller 
+
+// Pitch Controller
+float DEADBAND = 0.0;
+unsigned long MAIN_LOOP_TIME = 10; // (ms) : 5ms=200hz 10ms=100hz 20ms=50hz
+float setpoint = 0.0; 
+float setpoint_static = 0.0; 
 float error = 0;
 float previous_error = 0;
 float total_error = 0;
 float delta_error = 0;
 unsigned long previous_control_time = 0;
+unsigned long current_time = 0;
+unsigned long delta_time = 0;
 
-unsigned long period_T = 10;
 
 // Heading Controller
+float DEADBAND_HEADING = 3.0;
+unsigned long MAIN_LOOP_TIME_HEADING = 25; // (ms) : 5ms=200hz 10ms=100hz 20ms=50hz
+float heading_setpoint = 0.0;
 float error_heading = 0;
 float previous_error_heading = 0;
 float total_error_heading = 0;
 float delta_error_heading = 0;
 unsigned long previous_control_time_heading = 0;
+unsigned long current_time_heading = 0;
+unsigned long delta_time_heading = 0;
+long kp_term_heading = 0;
+long kd_term_heading = 0;
 
-unsigned long period_T_heading = 10;
 
-bool sensor_state = true;
-unsigned long previous_time = 0; 
-unsigned long reading_delay  = 100;
+
+
+// Speed Controller
+float DEADBAND_SPEED = 0.0;
+unsigned long MAIN_LOOP_TIME_SPEED = 10;
+float speed_setpoint = 0.0;
+float error_speed = 0.0;
+float previous_error_speed = 0.0;
+float total_error_speed = 0.0;
+float delta_error_speed = 0.0;
+unsigned long previous_control_time_speed = 0.0;
+unsigned long current_time_speed = 0;
+unsigned long delta_time_speed = 0;
+long kp_term_speed = 0;
+long kd_term_speed = 0;
+long ki_term_speed = 0;
