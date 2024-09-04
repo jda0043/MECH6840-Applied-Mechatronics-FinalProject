@@ -51,8 +51,6 @@ Architecture - ESP32 WROOM
 - 2x Nema 17 biploar 1.8 degree 1.5A Stepper Motors (42x42x38mm)
 - R-Line 4S 650mah LIPO battery
 
-  **NOTES**
-  - The steppers are used in 1/8 step mode
 
   **Interface**
   <img width="1272" alt="Screen Shot 2024-03-18 at 12 42 12 PM" src="https://github.com/jda0043/MECH6840-Applied-Mechatronics-FinalProject/assets/90729752/f512fa65-deb8-4922-b2ea-5690339a3683">
