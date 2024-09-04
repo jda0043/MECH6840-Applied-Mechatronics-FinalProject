@@ -45,7 +45,7 @@ Architecture - ESP32 WROOM
 **Part List**
 - ESP32 WROOM
 - 2x A4988 Stepper Motor Drivers
-- MPU9250 3-axis IMU
+- MPU9250 IMU / BNO085 IMU / MPU6050
 - Matek 6-30V step-down regulator set to 9V
 - Matek 6-30V step-down regulator set to 5V
 - 2x Nema 17 biploar 1.8 degree 1.5A Stepper Motors (42x42x38mm)
